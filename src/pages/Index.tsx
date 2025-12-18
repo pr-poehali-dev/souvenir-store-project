@@ -504,7 +504,7 @@ const Index = () => {
                   <Icon name="Mail" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold">Email</h3>
-                <p className="text-primary-foreground/80">info@wood-art.ru</p>
+                <p className="text-primary-foreground/80">kav0898@mail.ru</p>
               </div>
               <div className="flex flex-col items-center gap-3">
                 <div className="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
