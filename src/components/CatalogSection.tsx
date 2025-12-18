@@ -10,6 +10,7 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
 const PRODUCTS_API = 'https://functions.poehali.dev/aefdf81d-2d51-454c-a70c-4677389f4c2c';
+const UPLOAD_IMAGE_API = 'https://functions.poehali.dev/4fe14c97-3236-4d72-ad8d-f7255b576bcb';
 
 interface Product {
   id: number;
@@ -42,6 +43,7 @@ export default function CatalogSection() {
     image_url: '',
     is_available: true,
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const categories = ['Все', 'Вазы', 'Шкатулки', 'Конфетницы', 'Подсвечники', 'Пепельницы', 'Декор'];
   const priceRanges = [
@@ -166,6 +168,52 @@ export default function CatalogSection() {
     setDialogOpen(true);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Файл слишком большой. Максимум 5 МБ');
+      return;
+    }
+
+    setUploadingImage(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        
+        const response = await fetch(UPLOAD_IMAGE_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: base64,
+            filename: file.name,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Ошибка загрузки');
+        
+        const data = await response.json();
+        setFormData({ ...formData, image_url: data.url });
+        toast.success('Изображение загружено');
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Ошибка загрузки:', error);
+      toast.error('Не удалось загрузить изображение');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const filteredProducts = products.filter(product => {
     if (!adminMode && !product.available) return false;
     const categoryMatch = selectedCategory === 'Все' || product.category === selectedCategory;
@@ -279,15 +327,39 @@ export default function CatalogSection() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="image_url">Ссылка на изображение</Label>
-                    <Input
-                      id="image_url"
-                      type="url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                    />
+                  <div className="space-y-2">
+                    <Label>Изображение товара</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="flex-1"
+                      />
+                      {uploadingImage && <span className="text-sm text-muted-foreground">Загрузка...</span>}
+                    </div>
+                    {formData.image_url && (
+                      <div className="space-y-2">
+                        <img src={formData.image_url} alt="Превью" className="w-32 h-32 object-cover rounded border" />
+                        <Input
+                          type="url"
+                          value={formData.image_url}
+                          onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                          placeholder="Или введите ссылку на изображение"
+                          className="text-sm"
+                        />
+                      </div>
+                    )}
+                    {!formData.image_url && (
+                      <Input
+                        type="url"
+                        value={formData.image_url}
+                        onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                        placeholder="Или введите ссылку на изображение"
+                        className="text-sm"
+                      />
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <input
