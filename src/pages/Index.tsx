@@ -497,7 +497,7 @@ const Index = () => {
                   <Icon name="Phone" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold">Телефон</h3>
-                <p className="text-primary-foreground/80">+7 (999) 123-45-67</p>
+                <p className="text-primary-foreground/80">+7 (929) 309-08-98</p>
               </div>
               <div className="flex flex-col items-center gap-3">
                 <div className="w-16 h-16 bg-primary-foreground/10 rounded-full flex items-center justify-center">
@@ -511,7 +511,7 @@ const Index = () => {
                   <Icon name="MapPin" size={32} />
                 </div>
                 <h3 className="text-xl font-semibold">Мастерская</h3>
-                <p className="text-primary-foreground/80">г. Красноярск</p>
+                <p className="text-primary-foreground/80">с. Вознесенка, Березовский район, ул. Ленина, д. 14</p>
               </div>
             </div>
             <p className="text-lg text-primary-foreground/90">
