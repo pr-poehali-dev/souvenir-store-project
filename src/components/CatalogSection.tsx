@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 const PRODUCTS_API = 'https://functions.poehali.dev/aefdf81d-2d51-454c-a70c-4677389f4c2c';
 const UPLOAD_IMAGE_API = 'https://functions.poehali.dev/4fe14c97-3236-4d72-ad8d-f7255b576bcb';
+const RESET_PRODUCTS_API = 'https://functions.poehali.dev/7016ce14-f249-4f4b-9a4c-648f46150d2f';
 
 interface Product {
   id: number;
@@ -214,6 +215,27 @@ export default function CatalogSection() {
     }
   };
 
+  const handleResetDatabase = async () => {
+    if (!confirm('ВНИМАНИЕ! Это удалит ВСЕ товары и загрузит начальный каталог (22 товара). Продолжить?')) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch(RESET_PRODUCTS_API, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) throw new Error('Ошибка сброса базы');
+      
+      const data = await response.json();
+      toast.success(data.message || 'База данных обновлена');
+      fetchProducts();
+    } catch (error) {
+      console.error('Ошибка сброса базы:', error);
+      toast.error('Не удалось обновить базу данных');
+      setLoading(false);
+    }
+  };
+
   const filteredProducts = products.filter(product => {
     if (!adminMode && !product.available) return false;
     const categoryMatch = selectedCategory === 'Все' || product.category === selectedCategory;
@@ -255,7 +277,11 @@ export default function CatalogSection() {
         </div>
 
         {adminMode && (
-          <div className="mb-8 flex justify-center">
+          <div className="mb-8 flex justify-center gap-4">
+            <Button onClick={handleResetDatabase} variant="destructive">
+              <Icon name="RotateCcw" className="mr-2" size={20} />
+              Сбросить базу
+            </Button>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={startCreate}>

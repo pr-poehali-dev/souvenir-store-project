@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Reset products database",
+      "method": "POST",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "count": 22
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
