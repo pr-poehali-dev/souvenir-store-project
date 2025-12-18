@@ -1,0 +1,423 @@
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
+
+const PRODUCTS_API = 'https://functions.poehali.dev/aefdf81d-2d51-454c-a70c-4677389f4c2c';
+
+interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  price: string;
+  priceNum: number;
+  category: string;
+  image?: string;
+  available: boolean;
+}
+
+export default function CatalogSection() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [adminMode, setAdminMode] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
+  const [priceRange, setPriceRange] = useState<string>('Все');
+
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price_text: '',
+    price_num: 0,
+    category: 'Вазы',
+    image_url: '',
+    is_available: true,
+  });
+
+  const categories = ['Все', 'Вазы', 'Шкатулки', 'Конфетницы', 'Подсвечники', 'Пепельницы', 'Декор'];
+  const priceRanges = [
+    { label: 'Все', min: 0, max: Infinity },
+    { label: 'До 2 000 ₽', min: 0, max: 2000 },
+    { label: '2 000 - 5 000 ₽', min: 2000, max: 5000 },
+    { label: '5 000 - 10 000 ₽', min: 5000, max: 10000 },
+    { label: 'Более 10 000 ₽', min: 10000, max: Infinity },
+  ];
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch(PRODUCTS_API);
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Ошибка загрузки товаров:', error);
+      toast.error('Не удалось загрузить каталог');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      if (editingProduct) {
+        const response = await fetch(`${PRODUCTS_API}?id=${editingProduct.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        if (!response.ok) throw new Error('Ошибка обновления');
+        toast.success('Товар обновлён');
+      } else {
+        const response = await fetch(PRODUCTS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+        
+        if (!response.ok) throw new Error('Ошибка создания');
+        toast.success('Товар добавлен');
+      }
+      
+      setFormData({ name: '', description: '', price_text: '', price_num: 0, category: 'Вазы', image_url: '', is_available: true });
+      setEditingProduct(null);
+      setDialogOpen(false);
+      fetchProducts();
+    } catch (error) {
+      console.error('Ошибка сохранения:', error);
+      toast.error('Не удалось сохранить товар');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Удалить этот товар?')) return;
+    
+    try {
+      const response = await fetch(`${PRODUCTS_API}?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Ошибка удаления');
+      toast.success('Товар удалён');
+      fetchProducts();
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+      toast.error('Не удалось удалить товар');
+    }
+  };
+
+  const toggleAvailability = async (product: Product) => {
+    try {
+      const response = await fetch(`${PRODUCTS_API}?id=${product.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: product.name,
+          description: product.description,
+          price_text: product.price,
+          price_num: product.priceNum,
+          category: product.category,
+          image_url: product.image,
+          is_available: !product.available,
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Ошибка обновления');
+      toast.success(product.available ? 'Товар снят с продажи' : 'Товар возвращён в продажу');
+      fetchProducts();
+    } catch (error) {
+      console.error('Ошибка обновления:', error);
+      toast.error('Не удалось обновить статус');
+    }
+  };
+
+  const startEdit = (item: Product) => {
+    setEditingProduct(item);
+    setFormData({
+      name: item.name,
+      description: item.description || '',
+      price_text: item.price,
+      price_num: item.priceNum,
+      category: item.category,
+      image_url: item.image || '',
+      is_available: item.available,
+    });
+    setDialogOpen(true);
+  };
+
+  const startCreate = () => {
+    setEditingProduct(null);
+    setFormData({ name: '', description: '', price_text: '', price_num: 0, category: 'Вазы', image_url: '', is_available: true });
+    setDialogOpen(true);
+  };
+
+  const filteredProducts = products.filter(product => {
+    if (!adminMode && !product.available) return false;
+    const categoryMatch = selectedCategory === 'Все' || product.category === selectedCategory;
+    const currentRange = priceRanges.find(r => r.label === priceRange);
+    const priceMatch = !currentRange || (product.priceNum >= currentRange.min && product.priceNum < currentRange.max);
+    return categoryMatch && priceMatch;
+  });
+
+  if (loading) {
+    return (
+      <section id="catalog" className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center">Загрузка каталога...</div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="catalog" className="py-20 bg-muted/30">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center mb-12">
+          <div className="text-center flex-1">
+            <h2 className="text-4xl font-bold mb-4 text-primary">Наш каталог</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Каждое изделие уникально и создано вручную
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setAdminMode(!adminMode)}
+            className="ml-4"
+          >
+            <Icon name={adminMode ? 'EyeOff' : 'Eye'} size={20} />
+          </Button>
+        </div>
+
+        {adminMode && (
+          <div className="mb-8 flex justify-center">
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={startCreate}>
+                  <Icon name="Plus" className="mr-2" size={20} />
+                  Добавить товар
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingProduct ? 'Редактировать товар' : 'Новый товар'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Заполните информацию о товаре
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Название</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Описание</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="price_text">Цена (текст)</Label>
+                      <Input
+                        id="price_text"
+                        value={formData.price_text}
+                        onChange={(e) => setFormData({ ...formData, price_text: e.target.value })}
+                        placeholder="2 500 ₽"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="price_num">Цена (число)</Label>
+                      <Input
+                        id="price_num"
+                        type="number"
+                        value={formData.price_num}
+                        onChange={(e) => setFormData({ ...formData, price_num: parseInt(e.target.value) || 0 })}
+                        placeholder="2500"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Категория</Label>
+                    <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.filter(c => c !== 'Все').map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="image_url">Ссылка на изображение</Label>
+                    <Input
+                      id="image_url"
+                      type="url"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="is_available"
+                      checked={formData.is_available}
+                      onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="is_available">В наличии</Label>
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                      Отмена
+                    </Button>
+                    <Button type="submit">
+                      {editingProduct ? 'Сохранить' : 'Добавить'}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-4 justify-center mb-8">
+          {categories.map(cat => (
+            <Button
+              key={cat}
+              variant={selectedCategory === cat ? 'default' : 'outline'}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {cat}
+            </Button>
+          ))}
+        </div>
+
+        <div className="flex justify-center mb-8">
+          <Select value={priceRange} onValueChange={setPriceRange}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {priceRanges.map(range => (
+                <SelectItem key={range.label} value={range.label}>{range.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <Card key={product.id} className={`overflow-hidden hover:shadow-lg transition-shadow ${!product.available && adminMode ? 'opacity-60' : ''}`}>
+              {product.image && (
+                <div className="aspect-square overflow-hidden bg-muted">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+              <CardHeader>
+                <CardTitle className="line-clamp-2 text-base">{product.name}</CardTitle>
+                <CardDescription className="line-clamp-2 text-sm">{product.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-primary">{product.price}</p>
+                {!product.available && <p className="text-sm text-destructive mt-1">Продано</p>}
+              </CardContent>
+              <CardFooter className="flex gap-2">
+                {!adminMode && product.available && (
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedProduct(product);
+                      setOrderDialogOpen(true);
+                    }}
+                  >
+                    Заказать
+                  </Button>
+                )}
+                {adminMode && (
+                  <>
+                    <Button size="sm" variant="outline" onClick={() => startEdit(product)}>
+                      <Icon name="Edit" size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={product.available ? 'secondary' : 'default'}
+                      onClick={() => toggleAvailability(product)}
+                    >
+                      <Icon name={product.available ? 'X' : 'Check'} size={16} />
+                    </Button>
+                    <Button size="sm" variant="destructive" onClick={() => handleDelete(product.id)}>
+                      <Icon name="Trash2" size={16} />
+                    </Button>
+                  </>
+                )}
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="text-center text-muted-foreground py-12">
+            Нет товаров по выбранным фильтрам
+          </div>
+        )}
+      </div>
+
+      <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Заказать: {selectedProduct?.name}</DialogTitle>
+            <DialogDescription>Оставьте свои контакты, и мы свяжемся с вами</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="order-name">Ваше имя</Label>
+              <Input id="order-name" placeholder="Иван Иванов" />
+            </div>
+            <div>
+              <Label htmlFor="order-phone">Телефон</Label>
+              <Input id="order-phone" type="tel" placeholder="+7 (999) 123-45-67" />
+            </div>
+            <Button className="w-full">
+              <Icon name="Send" className="mr-2" size={20} />
+              Отправить заявку
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </section>
+  );
+}
