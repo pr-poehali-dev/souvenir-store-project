@@ -60,6 +60,7 @@ export default function CatalogSection() {
     try {
       const response = await fetch(PRODUCTS_API);
       const data = await response.json();
+      console.log('Loaded products:', data);
       setProducts(data);
     } catch (error) {
       console.error('Ошибка загрузки товаров:', error);
@@ -172,6 +173,8 @@ export default function CatalogSection() {
     const priceMatch = !currentRange || (product.priceNum >= currentRange.min && product.priceNum < currentRange.max);
     return categoryMatch && priceMatch;
   });
+
+  console.log('Filtered products:', filteredProducts);
 
   if (loading) {
     return (
