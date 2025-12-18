@@ -41,10 +41,10 @@ export default function NewsSection() {
     try {
       const response = await fetch(NEWS_API);
       const data = await response.json();
-      setNews(data);
+      setNews(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Ошибка загрузки новостей:', error);
-      toast.error('Не удалось загрузить новости');
+      setNews([]);
     } finally {
       setLoading(false);
     }
