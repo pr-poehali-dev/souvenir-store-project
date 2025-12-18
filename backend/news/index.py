@@ -88,7 +88,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(result),
+                'body': json.dumps(result, ensure_ascii=False),
                 'isBase64Encoded': False
             }
         
@@ -127,7 +127,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 201,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(result),
+                'body': json.dumps(result, ensure_ascii=False),
                 'isBase64Encoded': False
             }
         
@@ -190,7 +190,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps(result),
+                'body': json.dumps(result, ensure_ascii=False),
                 'isBase64Encoded': False
             }
         
