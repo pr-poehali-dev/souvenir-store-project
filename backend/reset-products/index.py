@@ -193,6 +193,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
     Сбрасывает базу товаров и загружает начальные данные
     POST / - удалить все товары и загрузить INITIAL_PRODUCTS
+    Требует заголовок X-Admin-Secret с правильным ключом
     """
     method: str = event.get('httpMethod', 'GET')
     
@@ -202,7 +203,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Secret',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
@@ -214,6 +215,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
             'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
+        }
+    
+    headers = event.get('headers', {})
+    admin_secret = headers.get('X-Admin-Secret') or headers.get('x-admin-secret')
+    expected_secret = os.environ.get('ADMIN_SECRET_KEY')
+    
+    if not expected_secret or admin_secret != expected_secret:
+        return {
+            'statusCode': 403,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Forbidden: Invalid admin secret'}),
             'isBase64Encoded': False
         }
     

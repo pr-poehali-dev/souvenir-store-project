@@ -216,13 +216,25 @@ export default function CatalogSection() {
   };
 
   const handleResetDatabase = async () => {
+    const adminSecret = prompt('Введите секретный ключ администратора для сброса базы:');
+    if (!adminSecret) return;
+    
     if (!confirm('ВНИМАНИЕ! Это удалит ВСЕ товары и загрузит начальный каталог (22 товара). Продолжить?')) return;
     
     setLoading(true);
     try {
       const response = await fetch(RESET_PRODUCTS_API, {
         method: 'POST',
+        headers: {
+          'X-Admin-Secret': adminSecret,
+        },
       });
+      
+      if (response.status === 403) {
+        toast.error('Неверный секретный ключ администратора');
+        setLoading(false);
+        return;
+      }
       
       if (!response.ok) throw new Error('Ошибка сброса базы');
       
