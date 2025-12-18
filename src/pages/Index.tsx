@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import NewsSection from '@/components/NewsSection';
+import VideosSection from '@/components/VideosSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -285,6 +286,7 @@ const Index = () => {
           <nav className="hidden md:flex gap-6">
             <a href="#catalog" className="text-foreground/80 hover:text-primary transition-colors">Каталог</a>
             <a href="#news" className="text-foreground/80 hover:text-primary transition-colors">Новости</a>
+            <a href="#videos" className="text-foreground/80 hover:text-primary transition-colors">Видео</a>
             <a href="#custom-order" className="text-foreground/80 hover:text-primary transition-colors">Заказать</a>
             <a href="#contact" className="text-foreground/80 hover:text-primary transition-colors">Контакты</a>
           </nav>
@@ -490,6 +492,8 @@ const Index = () => {
       </section>
 
       <NewsSection />
+
+      <VideosSection />
 
       <section id="contact" className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
