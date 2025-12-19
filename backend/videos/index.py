@@ -94,7 +94,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'POST':
-            # Создать видео с загрузкой файла
+            # Создать видео с загрузкой файла (base64)
             import base64
             import uuid
             import boto3
