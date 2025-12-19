@@ -32,7 +32,7 @@ const Index = () => {
       </header>
 
       <section 
-        className="relative py-20 md:py-32 overflow-hidden bg-cover bg-center bg-no-repeat"
+        className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat flex items-center justify-center"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://cdn.poehali.dev/projects/befd58b1-207d-44d6-91e9-e354a96a9201/files/fbcc8b25-50c5-49db-a3a5-be843413b75d.jpg')`
         }}
