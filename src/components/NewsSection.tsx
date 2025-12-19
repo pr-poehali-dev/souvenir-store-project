@@ -234,7 +234,7 @@ export default function NewsSection() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground line-clamp-3">{item.content}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{item.content}</p>
                 {adminMode && (
                   <div className="flex gap-2 mt-4">
                     <Button
