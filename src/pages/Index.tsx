@@ -31,13 +31,18 @@ const Index = () => {
         </div>
       </header>
 
-      <section className="relative py-20 md:py-32 overflow-hidden bg-gradient-to-br from-background via-muted/30 to-accent/10">
+      <section 
+        className="relative py-20 md:py-32 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://cdn.poehali.dev/projects/befd58b1-207d-44d6-91e9-e354a96a9201/files/fbcc8b25-50c5-49db-a3a5-be843413b75d.jpg')`
+        }}
+      >
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center animate-fade-in">
-            <h2 className="text-5xl md:text-7xl font-bold mb-6 text-primary">
+            <h2 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-lg">
               Искусство, созданное природой
             </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed drop-shadow-md">
               Каждое изделие из капа и сувеля — это уникальная песня природы. 
               Неповторимые узоры, созданные за десятилетия, оживают в руках мастера.
             </p>
@@ -46,7 +51,7 @@ const Index = () => {
                 <Icon name="Eye" className="mr-2" size={20} />
                 Смотреть коллекцию
               </Button>
-              <Button size="lg" variant="outline" className="text-lg" onClick={() => setCustomOrderOpen(true)}>
+              <Button size="lg" variant="outline" className="text-lg border-white text-white hover:bg-white/10" onClick={() => setCustomOrderOpen(true)}>
                 <Icon name="Wrench" className="mr-2" size={20} />
                 Заказать изделие
               </Button>
