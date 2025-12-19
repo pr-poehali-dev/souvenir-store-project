@@ -73,6 +73,12 @@ export default function VideoSection() {
       return;
     }
 
+    const maxSize = 50 * 1024 * 1024;
+    if (videoFile.size > maxSize) {
+      toast.error('Файл слишком большой. Максимум 50 МБ');
+      return;
+    }
+
     setUploading(true);
     
     try {
@@ -90,7 +96,11 @@ export default function VideoSection() {
         }),
       });
       
-      if (!response.ok) throw new Error('Ошибка загрузки');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Ошибка сервера:', response.status, errorData);
+        throw new Error(`Ошибка ${response.status}: ${errorData.error || 'Неизвестная ошибка'}`);
+      }
       
       toast.success('Видео загружено');
       setFormData({ title: '', description: '' });
@@ -100,7 +110,8 @@ export default function VideoSection() {
       fetchVideos();
     } catch (error) {
       console.error('Ошибка загрузки:', error);
-      toast.error('Не удалось загрузить видео');
+      const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить видео';
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }
