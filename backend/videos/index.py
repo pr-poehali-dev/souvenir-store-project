@@ -47,7 +47,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if video_id:
                 # Получить одно видео
                 cur.execute(
-                    "SELECT id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published FROM videos WHERE id = %s",
+                    "SELECT id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published FROM t_p4274353_souvenir_store_proje.videos WHERE id = %s",
                     (video_id,)
                 )
                 row = cur.fetchone()
@@ -72,7 +72,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             else:
                 # Получить все видео
                 cur.execute(
-                    "SELECT id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published FROM videos WHERE is_published = true ORDER BY created_at DESC"
+                    "SELECT id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published FROM t_p4274353_souvenir_store_proje.videos WHERE is_published = true ORDER BY created_at DESC"
                 )
                 rows = cur.fetchall()
                 result = [{
@@ -146,7 +146,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 thumbnail_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{thumbnail_key}"
             
             cur.execute(
-                "INSERT INTO videos (title, description, video_url, thumbnail_url) VALUES (%s, %s, %s, %s) RETURNING id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published",
+                "INSERT INTO t_p4274353_souvenir_store_proje.videos (title, description, video_url, thumbnail_url) VALUES (%s, %s, %s, %s) RETURNING id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published",
                 (title, description if description else None, video_url, thumbnail_url if thumbnail_url else None)
             )
             row = cur.fetchone()
@@ -199,7 +199,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             cur.execute(
-                """UPDATE videos 
+                """UPDATE t_p4274353_souvenir_store_proje.videos 
                    SET title = %s, description = %s, video_url = %s, thumbnail_url = %s, is_published = %s, updated_at = CURRENT_TIMESTAMP 
                    WHERE id = %s
                    RETURNING id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published""",
@@ -248,7 +248,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("DELETE FROM videos WHERE id = %s RETURNING id", (video_id,))
+            cur.execute("DELETE FROM t_p4274353_souvenir_store_proje.videos WHERE id = %s RETURNING id", (video_id,))
             row = cur.fetchone()
             
             if not row:
