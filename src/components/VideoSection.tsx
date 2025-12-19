@@ -73,9 +73,9 @@ export default function VideoSection() {
       return;
     }
 
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (videoFile.size > maxSize) {
-      toast.error('Файл слишком большой. Максимум 10 МБ');
+      toast.error('Файл слишком большой. Максимум 5 МБ. Сожмите видео перед загрузкой');
       return;
     }
 
