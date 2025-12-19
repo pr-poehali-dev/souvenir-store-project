@@ -94,20 +94,56 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif method == 'POST':
-            # Создать видео
+            # Создать видео с загрузкой файла
+            import base64
+            import uuid
+            import boto3
+            
             body_data = json.loads(event.get('body', '{}'))
             title = body_data.get('title', '').strip()
             description = body_data.get('description', '').strip()
-            video_url = body_data.get('video_url', '').strip()
-            thumbnail_url = body_data.get('thumbnail_url', '').strip()
+            video_base64 = body_data.get('video_data', '')
+            thumbnail_base64 = body_data.get('thumbnail_data', '')
             
-            if not title or not video_url:
+            if not title or not video_base64:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Title and video_url are required'}),
+                    'body': json.dumps({'error': 'Title and video_data are required'}),
                     'isBase64Encoded': False
                 }
+            
+            # Загрузка видео в S3
+            s3 = boto3.client('s3',
+                endpoint_url='https://bucket.poehali.dev',
+                aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+                aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
+            )
+            
+            video_id = str(uuid.uuid4())
+            video_key = f'videos/{video_id}.mp4'
+            
+            video_data = base64.b64decode(video_base64)
+            s3.put_object(
+                Bucket='files',
+                Key=video_key,
+                Body=video_data,
+                ContentType='video/mp4'
+            )
+            
+            video_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{video_key}"
+            
+            thumbnail_url = None
+            if thumbnail_base64:
+                thumbnail_key = f'videos/thumbnails/{video_id}.jpg'
+                thumbnail_data = base64.b64decode(thumbnail_base64)
+                s3.put_object(
+                    Bucket='files',
+                    Key=thumbnail_key,
+                    Body=thumbnail_data,
+                    ContentType='image/jpeg'
+                )
+                thumbnail_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{thumbnail_key}"
             
             cur.execute(
                 "INSERT INTO videos (title, description, video_url, thumbnail_url) VALUES (%s, %s, %s, %s) RETURNING id, title, description, video_url, thumbnail_url, created_at, updated_at, is_published",

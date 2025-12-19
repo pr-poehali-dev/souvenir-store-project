@@ -8,14 +8,14 @@
       "bodyMatcher": "type"
     },
     {
-      "name": "Create video",
+      "name": "Create video with upload",
       "method": "POST",
       "path": "/",
       "body": {
         "title": "Test Video",
         "description": "Test description",
-        "video_url": "https://www.youtube.com/embed/test",
-        "thumbnail_url": "https://example.com/thumb.jpg"
+        "video_data": "SGVsbG8gV29ybGQ=",
+        "thumbnail_data": "VGVzdA=="
       },
       "expectedStatus": 201,
       "bodyMatcher": "type"

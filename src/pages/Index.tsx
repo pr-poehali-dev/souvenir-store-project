@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import NewsSection from '@/components/NewsSection';
-import VideosSection from '@/components/VideosSection';
+import VideoSection from '@/components/VideoSection';
 import CatalogSection from '@/components/CatalogSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,7 +142,7 @@ const Index = () => {
 
       <NewsSection />
 
-      <VideosSection />
+      <VideoSection />
 
       <section id="contact" className="py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4">
