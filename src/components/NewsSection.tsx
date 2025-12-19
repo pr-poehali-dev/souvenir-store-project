@@ -121,7 +121,7 @@ export default function NewsSection() {
 
   if (loading) {
     return (
-      <section id="news" className="py-20 bg-background">
+      <section id="news" className="min-h-screen py-20 bg-background flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="text-center">Загрузка новостей...</div>
         </div>
@@ -130,7 +130,7 @@ export default function NewsSection() {
   }
 
   return (
-    <section id="news" className="py-20 bg-background">
+    <section id="news" className="min-h-screen py-20 bg-background flex items-center">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
           <div className="text-center flex-1">

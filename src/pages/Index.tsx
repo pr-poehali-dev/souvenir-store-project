@@ -64,7 +64,7 @@ const Index = () => {
 
       <CatalogSection />
 
-      <section id="custom-order" className="py-20 bg-gradient-to-br from-accent/5 to-muted/20">
+      <section id="custom-order" className="min-h-screen py-20 bg-gradient-to-br from-accent/5 to-muted/20 flex items-center">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12 animate-fade-in">
@@ -144,7 +144,7 @@ const Index = () => {
 
       <VideoSection />
 
-      <section id="contact" className="py-20 bg-primary text-primary-foreground">
+      <section id="contact" className="min-h-screen py-20 bg-primary text-primary-foreground flex items-center">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center animate-fade-in">
             <h2 className="text-4xl md:text-5xl font-bold mb-8">Свяжитесь с нами</h2>

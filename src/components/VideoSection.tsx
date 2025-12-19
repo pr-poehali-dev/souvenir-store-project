@@ -143,7 +143,7 @@ export default function VideoSection() {
 
   if (loading) {
     return (
-      <section id="videos" className="py-20 bg-muted/50">
+      <section id="videos" className="min-h-screen py-20 bg-muted/50 flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="text-center">Загрузка видео...</div>
         </div>
@@ -152,7 +152,7 @@ export default function VideoSection() {
   }
 
   return (
-    <section id="videos" className="py-20 bg-muted/50">
+    <section id="videos" className="min-h-screen py-20 bg-muted/50 flex items-center">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
           <div className="text-center flex-1">

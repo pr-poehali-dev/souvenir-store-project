@@ -260,7 +260,7 @@ export default function CatalogSection() {
 
   if (loading) {
     return (
-      <section id="catalog" className="py-20 bg-muted/30">
+      <section id="catalog" className="min-h-screen py-20 bg-muted/30 flex items-center justify-center">
         <div className="container mx-auto px-4">
           <div className="text-center">Загрузка каталога...</div>
         </div>
@@ -269,7 +269,7 @@ export default function CatalogSection() {
   }
 
   return (
-    <section id="catalog" className="py-20 bg-muted/30">
+    <section id="catalog" className="min-h-screen py-20 bg-muted/30 flex items-center">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-12">
           <div className="text-center flex-1">
