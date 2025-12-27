@@ -28,6 +28,9 @@ export default function CatalogSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminMode, setAdminMode] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const ADMIN_PASSWORD = 'admin2025';
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -281,12 +284,68 @@ export default function CatalogSection() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setAdminMode(!adminMode)}
+            onClick={() => {
+              if (adminMode) {
+                setAdminMode(false);
+              } else {
+                setPasswordDialogOpen(true);
+              }
+            }}
             className="ml-4"
           >
             <Icon name={adminMode ? 'EyeOff' : 'Eye'} size={20} />
           </Button>
         </div>
+
+        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Вход для администратора</DialogTitle>
+              <DialogDescription>
+                Введите пароль для доступа к редактированию каталога
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="admin-password">Пароль</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      if (passwordInput === ADMIN_PASSWORD) {
+                        setAdminMode(true);
+                        setPasswordDialogOpen(false);
+                        setPasswordInput('');
+                        toast.success('Вход выполнен');
+                      } else {
+                        toast.error('Неверный пароль');
+                      }
+                    }
+                  }}
+                  placeholder="Введите пароль"
+                />
+              </div>
+              <Button
+                onClick={() => {
+                  if (passwordInput === ADMIN_PASSWORD) {
+                    setAdminMode(true);
+                    setPasswordDialogOpen(false);
+                    setPasswordInput('');
+                    toast.success('Вход выполнен');
+                  } else {
+                    toast.error('Неверный пароль');
+                  }
+                }}
+                className="w-full"
+              >
+                Войти
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {adminMode && (
           <div className="mb-8 flex justify-center gap-4">
