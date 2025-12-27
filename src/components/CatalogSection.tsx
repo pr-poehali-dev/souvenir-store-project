@@ -30,7 +30,12 @@ export default function CatalogSection() {
   const [adminMode, setAdminMode] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const ADMIN_PASSWORD = 'admin2025';
+  const [adminPassword, setAdminPassword] = useState(() => {
+    return localStorage.getItem('adminPassword') || 'admin2025';
+  });
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -315,7 +320,7 @@ export default function CatalogSection() {
                   onChange={(e) => setPasswordInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      if (passwordInput === ADMIN_PASSWORD) {
+                      if (passwordInput === adminPassword) {
                         setAdminMode(true);
                         setPasswordDialogOpen(false);
                         setPasswordInput('');
@@ -330,7 +335,7 @@ export default function CatalogSection() {
               </div>
               <Button
                 onClick={() => {
-                  if (passwordInput === ADMIN_PASSWORD) {
+                  if (passwordInput === adminPassword) {
                     setAdminMode(true);
                     setPasswordDialogOpen(false);
                     setPasswordInput('');
@@ -347,8 +352,66 @@ export default function CatalogSection() {
           </DialogContent>
         </Dialog>
 
+        <Dialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Смена пароля администратора</DialogTitle>
+              <DialogDescription>
+                Введите новый пароль для доступа к редактированию каталога
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="new-password">Новый пароль</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Минимум 6 символов"
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm-password">Подтвердите пароль</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Повторите пароль"
+                />
+              </div>
+              <Button
+                onClick={() => {
+                  if (!newPassword || newPassword.length < 6) {
+                    toast.error('Пароль должен быть минимум 6 символов');
+                    return;
+                  }
+                  if (newPassword !== confirmPassword) {
+                    toast.error('Пароли не совпадают');
+                    return;
+                  }
+                  setAdminPassword(newPassword);
+                  localStorage.setItem('adminPassword', newPassword);
+                  setChangePasswordOpen(false);
+                  setNewPassword('');
+                  setConfirmPassword('');
+                  toast.success('Пароль успешно изменён');
+                }}
+                className="w-full"
+              >
+                Сохранить пароль
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {adminMode && (
           <div className="mb-8 flex justify-center gap-4">
+            <Button onClick={() => setChangePasswordOpen(true)} variant="outline">
+              <Icon name="Key" className="mr-2" size={20} />
+              Сменить пароль
+            </Button>
             <Button onClick={handleResetDatabase} variant="destructive">
               <Icon name="RotateCcw" className="mr-2" size={20} />
               Сбросить базу
