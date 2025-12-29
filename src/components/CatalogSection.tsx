@@ -24,6 +24,14 @@ interface Product {
   available: boolean;
 }
 
+const CACHE_KEY = 'products_cache';
+const CACHE_DURATION = 5 * 60 * 1000;
+
+interface CachedData {
+  data: Product[];
+  timestamp: number;
+}
+
 export default function CatalogSection() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,12 +75,32 @@ export default function CatalogSection() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const cachedData: CachedData = JSON.parse(cached);
+          const now = Date.now();
+          if (now - cachedData.timestamp < CACHE_DURATION) {
+            console.log('Loaded from cache');
+            setProducts(cachedData.data);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+      
       const response = await fetch(PRODUCTS_API);
       const data = await response.json();
-      console.log('Loaded products:', data);
+      console.log('Loaded from API:', data);
       setProducts(data);
+      
+      const cacheData: CachedData = {
+        data: data,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     } catch (error) {
       console.error('Ошибка загрузки товаров:', error);
       toast.error('Не удалось загрузить каталог');
@@ -108,7 +136,8 @@ export default function CatalogSection() {
       setFormData({ name: '', description: '', price_text: '', price_num: 0, category: 'Вазы', image_url: '', is_available: true });
       setEditingProduct(null);
       setDialogOpen(false);
-      fetchProducts();
+      localStorage.removeItem(CACHE_KEY);
+      fetchProducts(true);
     } catch (error) {
       console.error('Ошибка сохранения:', error);
       toast.error('Не удалось сохранить товар');
@@ -125,7 +154,8 @@ export default function CatalogSection() {
       
       if (!response.ok) throw new Error('Ошибка удаления');
       toast.success('Товар удалён');
-      fetchProducts();
+      localStorage.removeItem(CACHE_KEY);
+      fetchProducts(true);
     } catch (error) {
       console.error('Ошибка удаления:', error);
       toast.error('Не удалось удалить товар');
@@ -150,7 +180,8 @@ export default function CatalogSection() {
       
       if (!response.ok) throw new Error('Ошибка обновления');
       toast.success(product.available ? 'Товар снят с продажи' : 'Товар возвращён в продажу');
-      fetchProducts();
+      localStorage.removeItem(CACHE_KEY);
+      fetchProducts(true);
     } catch (error) {
       console.error('Ошибка обновления:', error);
       toast.error('Не удалось обновить статус');
@@ -248,7 +279,8 @@ export default function CatalogSection() {
       
       const data = await response.json();
       toast.success(data.message || 'База данных обновлена');
-      fetchProducts();
+      localStorage.removeItem(CACHE_KEY);
+      fetchProducts(true);
     } catch (error) {
       console.error('Ошибка сброса базы:', error);
       toast.error('Не удалось обновить базу данных');
