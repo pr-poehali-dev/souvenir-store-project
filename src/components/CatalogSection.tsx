@@ -570,11 +570,11 @@ export default function CatalogSection() {
           </Select>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredProducts.map((product) => (
             <Card key={product.id} className={`overflow-hidden hover:shadow-lg transition-shadow ${!product.available && adminMode ? 'opacity-60' : ''}`}>
               {product.image && (
-                <div className="aspect-square overflow-hidden bg-muted">
+                <div className="aspect-[4/3] overflow-hidden bg-muted">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -582,13 +582,13 @@ export default function CatalogSection() {
                   />
                 </div>
               )}
-              <CardHeader>
-                <CardTitle className="line-clamp-2 text-base">{product.name}</CardTitle>
-                <CardDescription className="line-clamp-2 text-sm">{product.description}</CardDescription>
+              <CardHeader className="p-3">
+                <CardTitle className="line-clamp-2 text-sm">{product.name}</CardTitle>
+                <CardDescription className="line-clamp-1 text-xs">{product.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-primary">{product.price}</p>
-                {!product.available && <p className="text-sm text-destructive mt-1">Продано</p>}
+              <CardContent className="p-3 pt-0">
+                <p className="text-lg font-bold text-primary">{product.price}</p>
+                {!product.available && <p className="text-xs text-destructive mt-1">Продано</p>}
               </CardContent>
               <CardFooter className="flex gap-2">
                 {!adminMode && product.available && (
