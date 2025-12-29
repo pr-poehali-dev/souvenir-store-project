@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
-const NEWS_API = 'https://functions.poehali.dev/fbb9b132-3531-41ca-be43-a1c99af1ed23';
+const CONTENT_API = 'https://functions.poehali.dev/42c2d427-da29-47fc-9792-37f0603430e7';
+const NEWS_API = `${CONTENT_API}?type=news`;
 
 interface NewsItem {
   id: number;

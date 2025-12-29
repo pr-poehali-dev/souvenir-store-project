@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 
-const VIDEO_API = 'https://functions.poehali.dev/6fb4d519-a65b-4a6a-8788-e60203447575';
+const CONTENT_API = 'https://functions.poehali.dev/42c2d427-da29-47fc-9792-37f0603430e7';
+const VIDEO_API = `${CONTENT_API}?type=videos`;
 
 interface VideoItem {
   id: number;
